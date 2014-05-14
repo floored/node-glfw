@@ -32,7 +32,7 @@
        "postinstall": "node-gyp rebuild"
    },
   "dependencies": {
-    "node-glfw-deps": "floored/node-native-graphics-deps"
+    "node-glfw-deps": "floored/node-native-graphics-deps#retinaoff"
   }
 }
 
