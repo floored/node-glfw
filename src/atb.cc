@@ -202,7 +202,11 @@ Bar *Bar::New(TwBar *zbar)
   Nan::HandleScope scope;
 
   Local<Function> cons = Nan::New<Function>(constructor_template);
-  Local<Object> obj = cons->NewInstance();
+  Isolate *isolate = v8::Isolate::GetCurrent();
+
+  Local<Object> obj;
+  MaybeLocal<Object> maybe_obj = cons->NewInstance(isolate->GetCurrentContext());
+  maybe_obj.ToLocal(&obj);
 
   Bar *v8bar = Nan::ObjectWrap::Unwrap<Bar>(obj);
   v8bar->bar = zbar;
@@ -259,10 +263,11 @@ void TW_CALL SetCallback(const void *value, void *clientData) {
     break;
   }
 
-  TryCatch try_catch;
+  Isolate *isolate = v8::Isolate::GetCurrent();
+  TryCatch try_catch(isolate);
 
   Local<Function> constructorHandle = Nan::New(cb->setter);
-  constructorHandle->Call(v8::Isolate::GetCurrent()->GetCurrentContext()->Global(), 1, argv);
+  constructorHandle->Call(isolate->GetCurrentContext()->Global(), 1, argv);
 
   if (try_catch.HasCaught())
     FatalException(v8::Isolate::GetCurrent(),try_catch);
@@ -279,7 +284,8 @@ void TW_CALL GetCallback(void *value, void *clientData) {
   Local<Value> argv[1];
   argv[0]=Nan::Undefined();
 
-  TryCatch try_catch;
+  Isolate *isolate = v8::Isolate::GetCurrent();
+  TryCatch try_catch(isolate);
 
   // cout<<"  calling JS getter"<<endl;
   // Local<Context> ctx=Context::GetCurrent();
@@ -291,7 +297,7 @@ void TW_CALL GetCallback(void *value, void *clientData) {
   // cout<<"getter name: "<<*str<<" callable? "<<fct->IsCallable()<<" function? "<<fct->IsFunction()<<endl;
   // cout<<"  global has getter()? "<<global->Has(name->ToString())<<endl;
 
-  Local<Value> val=fct->Call(v8::Isolate::GetCurrent()->GetCurrentContext()->Global(), 1, argv);
+  Local<Value> val=fct->Call(isolate->GetCurrentContext()->Global(), 1, argv);
 
   if (try_catch.HasCaught())
       FatalException(v8::Isolate::GetCurrent(),try_catch);
@@ -392,10 +398,11 @@ void TW_CALL SetButtonCallback(void *clientData) {
   Local<Value> argv[1];
   argv[0]=Nan::Undefined();
 
-  TryCatch try_catch;
+  Isolate *isolate = v8::Isolate::GetCurrent();
+  TryCatch try_catch(isolate);
 
   Local<Function> constructorHandle = Nan::New(cb->setter);
-  constructorHandle->Call(v8::Isolate::GetCurrent()->GetCurrentContext()->Global(), 1, argv);
+  constructorHandle->Call(isolate->GetCurrentContext()->Global(), 1, argv);
 
   if (try_catch.HasCaught())
     FatalException(v8::Isolate::GetCurrent(),try_catch);
